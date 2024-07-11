@@ -3,43 +3,35 @@
 #include <stdarg.h>
 
 /**
- * thread_printf - Thread-safe printf that uses a mutex to avoid race conditions
- * @format: Format string
- * Return: Number of characters printed
- * Author: Frank Onyema Orji
- */
-int thread_printf(char const *format, ...)
+ * tprintf - uses printf family to print out a given formatted string
+ * uses mutex to prevent race conditions
+ * @format: formatted string
+ * Return: number of characters printed
+ * Frank Onyema Orji
+ **/
+int tprintf(char const *format, ...)
 {
-	pthread_t thread_id = pthread_self();
+	pthread_t self = pthread_self();
 	va_list args;
-	int printed_chars;
+	int chars_printed;
 
 	va_start(args, format);
-	pthread_mutex_lock(&print_mutex);
-	printed_chars = printf("[%lu] ", (unsigned long)thread_id);
-	printed_chars += vprintf(format, args);
-	pthread_mutex_unlock(&print_mutex);
+	pthread_mutex_lock(&tprintf_mutex);
+	chars_printed = printf("[%lu] ", (unsigned long)self);
+	chars_printed += vprintf(format, args);
+	pthread_mutex_unlock(&tprintf_mutex);
 	va_end(args);
-	return (printed_chars);
+	return (chars_printed);
 }
 
-/**
- * init_print_mutex - Initializes the mutex for thread_printf
- */
-__attribute__((constructor)) void init_print_mutex(void)
+__attribute__((constructor)) void tprintf_mutex_init(void)
 {
-	pthread_mutex_init(&print_mutex, NULL);
+	pthread_mutex_init(&tprintf_mutex, NULL);
 }
 
-/**
- * destroy_print_mutex - Destroys the mutex for thread_printf
- */
-__attribute__((destructor)) void destroy_print_mutex(void)
+__attribute__((destructor)) void tprintf_mutex_destroy(void)
 {
-	pthread_mutex_destroy(&print_mutex);
+	pthread_mutex_destroy(&tprintf_mutex);
 }
 
-/**
- * cleanup - Ensures the destructor attribute is applied
- */
-void cleanup(void) __attribute__((destructor));
+void end(void) __attribute__((destructor));

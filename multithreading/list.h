@@ -5,7 +5,7 @@
 
 /**
  * struct node_s - Node structure
- * author: Frank Onyema Orji
+ *
  * @content: Custom content
  * @prev:    Pointer to the previous node in the list
  * @next:    Pointer to the next node in the list

@@ -5,6 +5,7 @@
 /*
  * Feel free to also copy this.
  * No one cares about you so care about yourself
+ * Author: Frank Onyema Orji
 */
 
 __attribute__((constructor)) void tasks_mutex_init(void)

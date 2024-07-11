@@ -8,7 +8,7 @@
 */
 int tprintf(char const *format, ...)
 {
-	pthread_t tid = pthread_self(); // get the thread id
+	pthread_t tid = pthread_self(); /* get the thread id */
 
 	printf("[%lu] %s", tid, format);
 	return (0);
