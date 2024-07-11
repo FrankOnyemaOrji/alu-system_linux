@@ -1,23 +1,22 @@
 #include "multithreading.h"
 #include "22-prime_factors_helpers.c"
 #include <stdlib.h>
+#include <pthread.h>
+#include <stdio.h>
 
 /*
- * Feel free to also copy this.
- * No one cares about you so care about yourself
  * Author: Frank Onyema Orji
 */
 
 __attribute__((constructor)) void tasks_mutex_init(void)
 {
-	pthread_mutex_init(&tasks_mutex, NULL);
+    pthread_mutex_init(&tasks_mutex, NULL);
 }
 
 __attribute__((destructor)) void tasks_mutex_destroy(void)
 {
-	pthread_mutex_destroy(&tasks_mutex);
+    pthread_mutex_destroy(&tasks_mutex);
 }
-
 
 /**
  * create_task - creates a new task structure and returns a pointer to it
@@ -27,19 +26,20 @@ __attribute__((destructor)) void tasks_mutex_destroy(void)
  **/
 task_t *create_task(task_entry_t entry, void *param)
 {
-	task_t *task = malloc(sizeof(task_t));
-	static unsigned int id;
+    task_t *task = malloc(sizeof(task_t));
+    static unsigned int id;
 
-	if (task)
-	{	task->entry = entry;
-		task->param = param;
-		task->lock = tasks_mutex;
-		task->status = PENDING;
-		task->result = NULL;
-		task->id = id++;
-	}
+    if (task)
+    {
+        task->entry = entry;
+        task->param = param;
+        task->lock = tasks_mutex;
+        task->status = PENDING;
+        task->result = NULL;
+        task->id = id++;
+    }
 
-	return (task);
+    return task;
 }
 
 /**
@@ -48,46 +48,45 @@ task_t *create_task(task_entry_t entry, void *param)
  **/
 void destroy_task(task_t *task)
 {
-	if (task)
-	{
-		list_destroy(task->result, free);
-		free(task->result);
-		free(task);
-	}
+    if (task)
+    {
+        free(task->result);
+        free(task);
+    }
 }
 
 /**
  * exec_tasks - executes a list of tasks
  * @tasks: NULL-terminated list of tasks
- * Return: ???
+ * Return: NULL
  **/
 void *exec_tasks(list_t const *tasks)
 {
-	int tasks_pending = 1, task_id;
-	node_t *node;
+    int tasks_pending = 1, task_id;
+    node_t *node;
 
-	if (tasks == NULL)
-		pthread_exit(NULL);
+    if (tasks == NULL)
+        pthread_exit(NULL);
 
-	while (tasks_pending)
-		for (tasks_pending = 0, node = tasks->head; node; node = node->next)
-			if (get_task_status(node->content) == PENDING)
-			{
-				tasks_pending = 1;
-				task_id = ((task_t *)node->content)->id;
-				set_task_status(node->content, STARTED);
-				tprintf("[%02d] Started\n", task_id);
-				if (exec_task(node->content))
-				{
-					set_task_status(node->content, SUCCESS);
-					tprintf("[%02d] Success\n", task_id);
-				}
-				else
-				{
-					set_task_status(node->content, FAILURE);
-					tprintf("[%02d] Failure\n", task_id);
-				}
-			}
+    while (tasks_pending)
+        for (tasks_pending = 0, node = tasks->head; node; node = node->next)
+            if (get_task_status(node->content) == PENDING)
+            {
+                tasks_pending = 1;
+                task_id = ((task_t *)node->content)->id;
+                set_task_status(node->content, STARTED);
+                tprintf("[%02d] Started\n", task_id);
+                if (exec_task(node->content))
+                {
+                    set_task_status(node->content, SUCCESS);
+                    tprintf("[%02d] Success\n", task_id);
+                }
+                else
+                {
+                    set_task_status(node->content, FAILURE);
+                    tprintf("[%02d] Failure\n", task_id);
+                }
+            }
 
-	return (NULL);
+    return NULL;
 }

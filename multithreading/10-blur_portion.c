@@ -8,7 +8,7 @@
 void apply_blur_to_pixel(const blur_portion_t *portion, size_t target_index);
 
 int is_valid_neighbor(const blur_portion_t *portion, int neighbor_index,
-  size_t target_index);
+size_t target_index);
 
 /**
  * blur_portion - Applies Gaussian Blur to a specific portion of an image
@@ -82,7 +82,7 @@ void apply_blur_to_pixel(const blur_portion_t *portion, size_t target_index)
  * Return: 1 if valid, 0 otherwise
  */
 int is_valid_neighbor(const blur_portion_t *portion, int neighbor_index,
-  size_t target_index)
+size_t target_index)
 {
 	int target_col, neighbor_col, kernel_size = (int)portion->kernel->size;
 	int total_pixels = portion->img->h * portion->img->w;

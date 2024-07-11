@@ -1,8 +1,6 @@
 #include "multithreading.h"
 
 /*
- * Feel free to also copy this
- * No one cares about you so care about yourself
  * Author: Frank Onyema Orji
 */
 
@@ -13,13 +11,13 @@
  */
 void *exec_task(task_t *task)
 {
-	void *result;
+    void *result;
 
-	result = task->entry(task->param);
-	pthread_mutex_lock(&task->lock);
-	task->result = result;
-	pthread_mutex_unlock(&task->lock);
-	return (result);
+    result = task->entry(task->param);
+    pthread_mutex_lock(&task->lock);
+    task->result = result;
+    pthread_mutex_unlock(&task->lock);
+    return result;
 }
 
 /**
@@ -29,12 +27,12 @@ void *exec_task(task_t *task)
  */
 task_status_t get_task_status(task_t *task)
 {
-	task_status_t status;
+    task_status_t status;
 
-	pthread_mutex_lock(&task->lock);
-	status = task->status;
-	pthread_mutex_unlock(&task->lock);
-	return (status);
+    pthread_mutex_lock(&task->lock);
+    status = task->status;
+    pthread_mutex_unlock(&task->lock);
+    return status;
 }
 
 /**
@@ -44,7 +42,7 @@ task_status_t get_task_status(task_t *task)
  */
 void set_task_status(task_t *task, task_status_t status)
 {
-	pthread_mutex_lock(&task->lock);
-	task->status = status;
-	pthread_mutex_unlock(&task->lock);
+    pthread_mutex_lock(&task->lock);
+    task->status = status;
+    pthread_mutex_unlock(&task->lock);
 }
