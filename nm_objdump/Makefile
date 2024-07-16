@@ -1,5 +1,6 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -g
+CFLAGS = -Wall -Wextra -g -std=c99 -pedantic -Werror
+DEBUGFLAGS = -g 
 LDFLAGS = -lelf
 
 TARGET1 = hnm
@@ -14,10 +15,10 @@ OBJS2 = $(SRCS2:.c=.o)
 all: $(TARGET1) $(TARGET2)
 
 $(TARGET1): $(OBJS1)
-	$(CC) $(CFLAGS) -o $(TARGET1) $(OBJS1) $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $(TARGET1) $(OBJS1) $(DEBUGFLAGS) $(LDFLAGS)
 
 $(TARGET2): $(OBJS2)
-	$(CC) $(CFLAGS) -o $(TARGET2) $(OBJS2) $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $(TARGET2) $(OBJS2) $(DEBUGFLAGS) $(LDFLAGS)
 
 clean:
 	rm -f $(OBJS1) $(TARGET1) $(OBJS2) $(TARGET2)
