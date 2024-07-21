@@ -1,24 +1,16 @@
-CC = gcc
-CFLAGS = -Wall -Wextra -g -std=c99 -pedantic -Werror
-DEBUGFLAGS = -g 
-LDFLAGS = -lelf
+CC               = gcc
+INCLUDE          = include/
+CFLAGS           = -g3 -Wall -Werror -Wextra -pedantic -I $(INCLUDE)
+SRC              = src/
+BSWAP            = $(addprefix $(SRC), bswap_32.c bswap_64.c bswap_string.c)
+HNM_SRC_DIR      = $(SRC)hnm/
+HNM_SRC          = $(addprefix $(HNM_SRC_DIR), main.c hnm_32.c hnm_64.c) $(BSWAP)
+HOBJDUMP_SRC_DIR = $(SRC)hobjdump/
+HOBJDUMP_SRC     = $(addprefix $(HOBJDUMP_SRC_DIR), main.c hobjdump_32.c hobjdump_64.c) $(BSWAP)
 
-TARGET1 = hnm
-TARGET2 = hobjdump
 
-SRCS1 = hnm.c
-SRCS2 = hobjdump.c
+hnm: $(HNM_SRC)
+	$(CC) $(CFLAGS) $(HNM_SRC) -o hnm
 
-OBJS1 = $(SRCS1:.c=.o)
-OBJS2 = $(SRCS2:.c=.o)
-
-all: $(TARGET1) $(TARGET2)
-
-$(TARGET1): $(OBJS1)
-	$(CC) $(CFLAGS) -o $(TARGET1) $(OBJS1) $(DEBUGFLAGS) $(LDFLAGS)
-
-$(TARGET2): $(OBJS2)
-	$(CC) $(CFLAGS) -o $(TARGET2) $(OBJS2) $(DEBUGFLAGS) $(LDFLAGS)
-
-clean:
-	rm -f $(OBJS1) $(TARGET1) $(OBJS2) $(TARGET2)
+hobjdump: $(HOBJDUMP_SRC)
+	$(CC) $(CFLAGS) $(HOBJDUMP_SRC) -o hobjdump
