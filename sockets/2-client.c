@@ -72,61 +72,34 @@ int accept_connection(int server_fd)
 		exit(EXIT_FAILURE);
 	}
 
-	inet_ntop(AF_INET, &client_address.sin_addr, client_ip, INET_ADDRSTRLEN);
-	printf("Client connected: %s\n", client_ip);
-	return (new_socket);
-}
-
-/**
- * handle_client - Receives a message from the connected client, prints the message,
- * and then closes the connection with the client.
- * This function handles communication with the client after a connection
- * has been established. If receiving a message fails, it prints an error message
- * and exits the program. After printing the received message, it closes the client socket.
- * @client_socket: The file descriptor of the client socket from which
- *                 the message will be received.
- * Return: Nothing (void)
- */
-
-void handle_client(int client_socket)
-{
-	char buffer[BUFFER_SIZE];
-	ssize_t message_len = recv(client_socket, buffer, BUFFER_SIZE, 0);
-
-	if (message_len < 0)
+	hints_init(&hints);
+	status = getaddrinfo(argv[1], argv[2], &hints, &host_addrinfo);
+	if (status)
 	{
-		perror("recv failed");
-		exit(EXIT_FAILURE);
+		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(status));
+		return (EXIT_FAILURE);
 	}
 
-	buffer[message_len] = '\0';
-	printf("Message received: \"%s\"\n", buffer);
-	close(client_socket);
-}
+	client_id = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (client_id == -1)
+	{
+		perror("socket");
+		return (EXIT_FAILURE);
+	}
 
-/**
- * main - The entry point of the program
- * This program orchestrates the initialization of the server, accepting
- * a connection from a client, handling the client's request, and then
- * cleaning up before exiting. It calls 'initialize_server' to set up the
- * listening socket, accepts a connection from a client through 'accept_connection',
- * handles the client's message with 'handle_client', and finally closes the
- * server socket.
- * Return: 0 (success)
- */
+	for (tmp = host_addrinfo; tmp; tmp = tmp->ai_next)
+	{
+		if (connect(client_id, tmp->ai_addr, tmp->ai_addrlen) == 0)
+		{
+			printf("Connected to %s:%s\n", argv[1], argv[2]);
+			freeaddrinfo(host_addrinfo);
+			close(client_id);
+			return (EXIT_SUCCESS);
+		}
+	}
 
-int main(void)
-{
-	int server_fd;
-	int client_socket;
-
-	initialize_server(&server_fd);
-
-	client_socket = accept_connection(server_fd);
-
-	handle_client(client_socket);
-
-	close(server_fd);
-
-	return (0);
+	fprintf(stderr, "No valid address found for %s:%s\n", argv[1], argv[2]);
+	freeaddrinfo(host_addrinfo);
+	close(client_id);
+	return (EXIT_FAILURE);
 }
