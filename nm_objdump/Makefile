@@ -1,16 +1,43 @@
-CC               = gcc
-INCLUDE          = include/
-CFLAGS           = -g3 -Wall -Werror -Wextra -pedantic -I $(INCLUDE)
-SRC              = src/
-BSWAP            = $(addprefix $(SRC), bswap_32.c bswap_64.c bswap_string.c)
-HNM_SRC_DIR      = $(SRC)hnm/
-HNM_SRC          = $(addprefix $(HNM_SRC_DIR), main.c hnm_32.c hnm_64.c) $(BSWAP)
-HOBJDUMP_SRC_DIR = $(SRC)hobjdump/
-HOBJDUMP_SRC     = $(addprefix $(HOBJDUMP_SRC_DIR), main.c hobjdump_32.c hobjdump_64.c) $(BSWAP)
+# Compiler to use
+CC = gcc
 
+# Compiler flags to ensure strict compliance with code standards and to enable debugging
+CFLAGS = -Wall -Werror -Wextra -pedantic -g -std=c99
 
-hnm: $(HNM_SRC)
-	$(CC) $(CFLAGS) $(HNM_SRC) -o hnm
+# Additional flags for debugging
+DEBUGFLAGS = -g
 
-hobjdump: $(HOBJDUMP_SRC)
-	$(CC) $(CFLAGS) $(HOBJDUMP_SRC) -o hobjdump
+# Names of the target executables
+TARGET_0 = hnm
+TARGET_1 = hobjdump
+
+# Source files for the hnm program
+SOURCE_0 = hnm-64.c hnm-32.c hnm-main.c hnm.h
+
+# Source files for the hobjdump program
+SOURCE_1 = hobjdump.c
+
+# Default rule to build all programs
+all: $(TARGET_0) $(TARGET_1)
+
+# Rule to compile with debug information
+debug: CFLAGS += $(DEBUGFLAGS)
+debug: all
+
+# Rule to build the hnm program
+$(TARGET_0): $(SOURCE_0)
+	$(CC) $(CFLAGS) -o $(TARGET_0) $(SOURCE_0)
+
+# Rule to build the hobjdump program
+$(TARGET_1): $(SOURCE_1)
+	$(CC) $(CFLAGS) -o $(TARGET_1) $(SOURCE_1)
+
+# Rule to clean up the compiled binaries and object files
+clean:
+	rm -f $(TARGET_0) $(TARGET_1)
+	rm -f *.o
+	rm -f *.out
+	rm -f *~
+
+# Declaring phony targets to avoid conflicts with files of the same name
+.PHONY: all clean debug
