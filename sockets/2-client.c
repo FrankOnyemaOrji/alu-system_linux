@@ -1,75 +1,48 @@
-#include "socket.h"
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <stdio.h>
+#include <unistd.h>
 
-#define PORT 12345
-#define BUFFER_SIZE 1024
-
+#define EXIT_SUCCESS 0
+#define EXIT_FAILURE 1
 
 /**
- * initialize_server - Initializes the server by creating a TCP socket,
- * binding it to a specific port, and setting it to listen for incoming connections.
- * This function configures the server's address to accept connections
- * on any network interface. If socket creation, binding, or listening fails,
- * it prints an error message and exits the program.
- * @server_fd: A pointer to an integer where the file descriptor of the
- *             created socket will be stored. This descriptor is used for all
- *             subsequent operations on the socket.
- * Return: Nothing (void)
+ * hints_init - defines the hints addrinfo struct, which we use for getaddrinfo
+ *
+ * @hints: pointer to addrinfo struct
  */
-
-void initialize_server(int *server_fd)
+static void hints_init(struct addrinfo *hints)
 {
-	struct sockaddr_in address;
-
-	*server_fd = socket(AF_INET, SOCK_STREAM, 0);
-
-	if (*server_fd == -1)
+	if (hints)
 	{
-		perror("socket failed");
-		exit(EXIT_FAILURE);
+		hints->ai_flags     = 0;
+		hints->ai_family    = AF_INET;
+		hints->ai_socktype  = SOCK_STREAM;
+		hints->ai_protocol  = IPPROTO_TCP;
+		hints->ai_addrlen   = 0;
+		hints->ai_addr      = NULL;
+		hints->ai_canonname = NULL;
+		hints->ai_next      = NULL;
 	}
-
-	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = INADDR_ANY;
-	address.sin_port = htons(PORT);
-
-	if (bind(*server_fd, (struct sockaddr *)&address, sizeof(address)) < 0)
-	{
-		perror("bind failed");
-		exit(EXIT_FAILURE);
-	}
-
-	if (listen(*server_fd, 1) < 0)
-	{
-		perror("listen failed");
-		exit(EXIT_FAILURE);
-	}
-	printf("Server listening on port %d\n", PORT);
 }
 
 /**
- * accept_connection - Accepts an incoming connection request on the listening socket
- * This function retrieves and prints the IP address of the connecting client.
- * @server_fd: The file descriptor of the server socket that is listening
- *             for connections.
- * Return: The file descriptor of the newly accepted client socket;
- *         if accepting the client fails, the function prints an error
- *         message and exits the program.
+ * main - connects to a listening server. Takes 2 arguments:
+ *        Usage: 2-client <host> <port>
+ * @argc: argument count
+ * @argv: argument array
+ * Return: EXIT_SUCCESS on success | EXIT_FAILURE on failure
  */
-
-int accept_connection(int server_fd)
+int main(int argc, char *argv[])
 {
-	struct sockaddr_in client_address;
-	socklen_t client_address_len = sizeof(client_address);
-	char client_ip[INET_ADDRSTRLEN];
-	int new_socket;
+	struct addrinfo hints, *host_addrinfo, *tmp;
+	int status, client_id;
 
-	new_socket = accept(server_fd, (struct sockaddr *)&client_address,
-		&client_address_len);
 
-	if (new_socket < 0)
+	if (argc < 3)
 	{
-		perror("accept failed");
-		exit(EXIT_FAILURE);
+		fprintf(stderr, "Usage: %s <host> <port>\n", argv[0]);
+		return (EXIT_FAILURE);
 	}
 
 	hints_init(&hints);

@@ -1,140 +1,69 @@
-#include "socket.h"
+#include <arpa/inet.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
-#define PORT 12345
-#define BUFFER_SIZE 1024
-
+#define PORT         12345
 
 /**
- * initialize_server - Initializes the server by creating a TCP socket,
- * binding it to a specific port, and setting it to listen for incoming connections.
- * This function configures the server's address to accept connections
- * on any network interface. If socket creation, binding, or listening fails,
- * it prints an error message and exits the program.
- * @server_fd: A pointer to an integer where the file descriptor of the
- *             created socket will be stored. This descriptor is used for all
- *             subsequent operations on the socket.
- * Return: Nothing (void)
+ * error_out - prints error, closes open file descriptors and exits
+ *
+ * @str: error message
+ * @server_id: server socket file descriptor
+ * @client_id: client socket file descriptor
  */
-
-void initialize_server(int *server_fd)
+static void error_out(char *str, int *server_id, int *client_id)
 {
-	struct sockaddr_in address;
-
-	*server_fd = socket(AF_INET, SOCK_STREAM, 0);
-
-	if (*server_fd == -1)
-	{
-		perror("socket failed");
-		exit(EXIT_FAILURE);
-	}
-
-	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = INADDR_ANY;
-	address.sin_port = htons(PORT);
-
-	if (bind(*server_fd, (struct sockaddr *)&address, sizeof(address)) < 0)
-	{
-		perror("bind failed");
-		exit(EXIT_FAILURE);
-	}
-
-	if (listen(*server_fd, 1) < 0)
-	{
-		perror("listen failed");
-		exit(EXIT_FAILURE);
-	}
-	printf("Server listening on port %d\n", PORT);
+	perror(str);
+	if (client_id)
+		close(*client_id);
+	if (server_id)
+		close(*server_id);
+	exit(EXIT_FAILURE);
 }
 
 /**
- * accept_connection - Accepts an incoming connection request on the listening socket.
- * This function retrieves and prints the IP address of the connecting client.
- * @server_fd: The file descriptor of the server socket that is listening
- *             for connections.
- * Return: The file descriptor of the newly accepted client socket;
- *         if accepting the client fails, the function prints an error
- *         message and exits the program.
+ * main - Opens an IPv4/TCP socket and listens to traffic on port 12345. Can
+ *        accept an entering connection and waits for an incoming message.
+ *        It prints the received message, then closes the connection
+ *
+ * Return: always zero
  */
-
-int accept_connection(int server_fd)
-{
-	struct sockaddr_in client_address;
-	socklen_t client_address_len = sizeof(client_address);
-	char client_ip[INET_ADDRSTRLEN];
-	int new_socket;
-
-	new_socket = accept(server_fd, (struct sockaddr *)&client_address,
-		&client_address_len);
-
-	if (new_socket < 0)
-	{
-		perror("accept failed");
-		exit(EXIT_FAILURE);
-	}
-
-	inet_ntop(AF_INET, &client_address.sin_addr, client_ip, INET_ADDRSTRLEN);
-	printf("Client connected: %s\n", client_ip);
-	return (new_socket);
-}
-
-/**
- * handle_client - Handles communication with a connected client.
- *                 Receives a message, prints it, and closes the connection.
- * @client_socket: The file descriptor of the client socket.
- *
- * This function is responsible for:
- * 1. Receiving a message from the connected client.
- * 2. Printing the received message.
- * 3. Closing the client socket after the message is printed.
- * 
- * If receiving the message fails, it prints an error message and exits the program.
- * 
- * Return: void
- */
-
-void handle_client(int client_socket)
-{
-	char buffer[BUFFER_SIZE];
-	ssize_t message_len = recv(client_socket, buffer, BUFFER_SIZE, 0);
-
-	if (message_len < 0)
-	{
-		perror("recv failed");
-		exit(EXIT_FAILURE);
-	}
-
-	buffer[message_len] = '\0';
-	printf("Message received: \"%s\"\n", buffer);
-	close(client_socket);
-}
-
-/**
- * main - Entry point of the server program.
- *
- * This program initializes the server, accepts a connection from a client,
- * handles the client's request, and performs cleanup before exiting.
- *
- * The sequence of operations is as follows:
- * 1. Calls 'initialize_server' to set up the listening socket.
- * 2. Accepts a connection from a client using 'accept_connection'.
- * 3. Handles the client's message with 'handle_client'.
- * 4. Closes the server socket.
- *
- * Return: 0 on success.
- */
-
 int main(void)
 {
-	int server_fd;
-	int client_socket;
+	int client_id, server_id = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+	socklen_t addr_size = sizeof(struct sockaddr);
+	struct sockaddr_in server_addr, client_addr;
+	char buffer[1024];
 
-	initialize_server(&server_fd);
 
-	client_socket = accept_connection(server_fd);
+	if (server_id == -1)
+		error_out("Socket", NULL, NULL);
 
-	handle_client(client_socket);
+	server_addr.sin_family = AF_INET;
+	server_addr.sin_port = htons(PORT);
+	server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-	close(server_fd);
+	if (bind(server_id, (struct sockaddr *)&server_addr, addr_size) == -1)
+		error_out("Bind", &server_id, NULL);
 
+	if (listen(server_id, 1) == -1)
+		error_out("Listen", &server_id, NULL);
+
+	printf("Server listening on port %d\n", PORT);
+
+	client_id = accept(server_id, (struct sockaddr *)&client_addr, &addr_size);
+	if (client_id == -1)
+		error_out("Accept", &server_id, NULL);
+
+	printf("Client connected: %s\n", inet_ntoa(client_addr.sin_addr));
+
+	if (recv(client_id, buffer, sizeof(buffer), 0) == -1)
+		error_out("Recv", &server_id, &client_id);
+
+	printf("Message received: \"%s\"\n", buffer);
+
+	close(client_id);
+	close(server_id);
 	return (0);
 }
