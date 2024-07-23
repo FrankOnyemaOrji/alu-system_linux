@@ -1,36 +1,12 @@
-```plaintext
-L1 - Assigning. Example: holberton[98] = 402
 O(1)
-
-L2 - Appending. Example: holberton.append(98)
 O(1)
-
-L3 - Concatenating a list of n elements. Example: holberton + [98, 402]
 O(n)
-
-L4 - Inserting an item at a given position. Example: holberton.insert(98, 402)
 O(n)
-
-L5 - Removing an element. Example: holberton.remove(98)
 O(n)
-
-L6 - Removing and returning the last item in the list. Example: holberton.pop()
 O(1)
-
-L7 - Popping an element at a given position. Example: holberton.pop(98)
 O(n)
-
-L8 - Clearing a list. Example: holberton.clear()
 O(n)
-
-L9 - Counting the list. Example: holberton.count()
-O(n)
-
-L10 - Sorting the list. Example: holberton.sort()
-O(n log n)
-
-L11 - Reversing the list. Example: holberton.reverse()
-O(n)
-
-L12 - Deleting the list. Example: del holberton
 O(1)
+O(nlog(n))
+O(n)
+O(n)
