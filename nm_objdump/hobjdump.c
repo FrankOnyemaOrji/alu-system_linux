@@ -2,12 +2,13 @@
 
 /**
  * main - the entry point
-
  * @argc: the count of command-line arguments
  * @argv: the array of command-line arguments;
  *        argv[1] should contain the file path to be dumped
  * @env: the environment variables array passed to the 'objdump' command
  *       upon execution
+ * Return: EXIT_SUCCESS upon successful execution of 'objdump',
+ *         otherwise returns EXIT_FAILURE
  * Author: Frank Onyema Orji
  */
 

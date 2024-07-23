@@ -2,6 +2,13 @@
 
 /**
  * main - the entry point
+ * program made for the ELF file processing program
+ * @argc: the count of command-line arguments
+ * @argv: the array of command-line arguments,
+ *        where argv[1] is expected to be the path to the ELF file
+ * Return: 0 on successful execution,
+ *         or 0 in case of an error such as missing file argument
+ *         or unsupported ELF file type
  * Author: Frank Onyema Orji
  */
 
