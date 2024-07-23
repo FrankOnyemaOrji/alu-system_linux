@@ -1,46 +1,34 @@
-CC       = gcc
-CFLAGS   = -g3 -Wall -Werror -Wextra -pedantic
+CC = gcc
+CFLAGS = -Wall -Werror -Wextra -pedantic -std=gnu89 -g3
 
+SRC = $(wildcard *.c)
+OBJS = $(patsubst %.c, %.o, $(SRC))
+0 = $(patsubst %.c, %.o, $(wildcard todo_api_0.c)) sockets.c
+1 = $(patsubst %.c, %.o, $(wildcard todo_api_1.c)) sockets.c
+2 = $(patsubst %.c, %.o, $(wildcard todo_api_2.c)) sockets.c
+3 = $(patsubst %.c, %.o, $(wildcard todo_api_3.c)) sockets.c
+4 = $(patsubst %.c, %.o, $(wildcard todo_api_4.c)) sockets.c response.c
+5 = $(patsubst %.c, %.o, $(wildcard todo_api_5.c)) sockets.c response.c
 
-0-server: 0-server.o
-	$(CC) $(CFLAGS) 0-server.c -o 00-server
+.PHONY: todo_api_0 todo_api_1 todo_api_2 todo_api_3 todo_api_4 todo_api_5 clean
 
-1-server: 1-server.o
-	$(CC) $(CFLAGS) 1-server.c -o 11-server
+todo_api_0: $(0)
+	$(CC) $(CFLAGS) $(0) -o todo_api_0
 
-2-client: 2-client.o
-	$(CC) $(CFLAGS) 2-client.c -o 22-client
+todo_api_1: $(1)
+	$(CC) $(CFLAGS) $(1) -o todo_api_1
 
-3-server: 3-server.o
-	$(CC) $(CFLAGS) 3-server.c -o 33-server
+todo_api_2: $(2)
+	$(CC) $(CFLAGS) $(2) -o todo_api_2
 
-todo_api_0: 4-make_response.o simple_server.o
-	$(CC) $(CFLAGS) 4-make_response.o simple_server.o -o todo_api_0
+todo_api_3: $(3)
+	$(CC) $(CFLAGS) $(3) -o todo_api_3
 
-todo_api_1: 5-make_response.o simple_server.o
-	$(CC) $(CFLAGS) 5-make_response.o simple_server.o -o todo_api_1
+todo_api_4: $(4)
+	$(CC) $(CFLAGS) $(4) -o todo_api_4
 
-todo_api_2: 6-make_response.o simple_server.o
-	$(CC) $(CFLAGS) 6-make_response.o simple_server.o -o todo_api_2
+todo_api_5: $(5)
+	$(CC) $(CFLAGS) $(5) -o todo_api_5
 
-todo_api_3: 7-make_response.o simple_server.o
-	$(CC) $(CFLAGS) 7-make_response.o simple_server.o -o todo_api_3
-
-todo_api_4: 8-make_response.o simple_server.o
-	$(CC) $(CFLAGS) 8-make_response.o simple_server.o -o todo_api_4
-
-todo_api_5: todo_api_5_files simple_server.o
-	$(CC) $(CFLAGS) 8-make_response.o simple_server.o -o todo_api_5
-
-todo_api_5_files:
-	$(CC) $(CFLAGS) -DTODO_API_5 -c 8-make_response.c
-
-todo_api_6: todo_api_5
-	$(CC) $(CFLAGS) 8-make_response.o simple_server.o -o todo_api_6
-
-todo_api_7: todo_api_7_files simple_server.o
-	$(CC) $(CFLAGS) 8-make_response.o simple_server.o -o todo_api_7
-
-todo_api_7_files:
-	$(CC) $(CFLAGS) -DTODO_API_5 -DTODO_API_7 -c 8-make_response.c
-	
+clean:
+	rm -f $(OBJS) todo_api_0 todo_api_1 todo_api_2 todo_api_3 todo_api_4 todo_api_5
