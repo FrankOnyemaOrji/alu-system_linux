@@ -1,38 +1,43 @@
-# Define the C compiler
-CC := gcc
+# Compiler to use
+CC = gcc
 
-# Set compiler flags for strict code standards and debugging
-CFLAGS := -Wall -Werror -Wextra -pedantic -g -std=c99
+# Compiler flags to ensure strict compliance with code standards and to enable debugging
+CFLAGS = -Wall -Werror -Wextra -pedantic -g -std=c99
 
-# Extra flags for debug mode
-DEBUGFLAGS := -g
+# Additional flags for debugging
+DEBUGFLAGS = -g
 
-# Specify the names of the executables
-TARGET_0 := hnm
-TARGET_1 := hobjdump
+# Names of the target executables
+TARGET_0 = hnm
+TARGET_1 = hobjdump
 
-# List source files for each program
-SOURCE_0 := hnm-64.c hnm-32.c hnm-main.c hnm.h
-SOURCE_1 := hobjdump.c
+# Source files for the hnm program
+SOURCE_0 = hnm-64.c hnm-32.c hnm-main.c hnm.h
 
-# Default target to build both programs
+# Source files for the hobjdump program
+SOURCE_1 = hobjdump.c
+
+# Default rule to build all programs
 all: $(TARGET_0) $(TARGET_1)
 
-# Enable debug mode
+# Rule to compile with debug information
 debug: CFLAGS += $(DEBUGFLAGS)
 debug: all
 
-# Compilation rule for hnm
+# Rule to build the hnm program
 $(TARGET_0): $(SOURCE_0)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $(TARGET_0) $(SOURCE_0)
 
-# Compilation rule for hobjdump
+# Rule to build the hobjdump program
 $(TARGET_1): $(SOURCE_1)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $(TARGET_1) $(SOURCE_1)
 
-# Clean up compiled files and temporary artifacts
+# Rule to clean up the compiled binaries and object files
 clean:
-	rm -f $(TARGET_0) $(TARGET_1) *.o *.out *~
+	rm -f $(TARGET_0) $(TARGET_1)
+	rm -f *.o
+	rm -f *.out
+	rm -f *~
 
-# Declare phony targets
+# Declaring phony targets to avoid conflicts with files of the same name
 .PHONY: all clean debug
