@@ -1,1 +1,1 @@
-This is the readme file for nm_objdump
+Readme file for nm_objdump
