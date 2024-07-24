@@ -52,6 +52,12 @@ void print_python_int(PyObject *p)
 	}
 }
 
+/**
+ * print_number - prints an unsigned long integer with optional negative sign
+ * @num: the unsigned long integer to be printed
+ * @is_negative: flag indicating if the number is negative
+ * Return: nothing (void)
+ */
 void print_number(unsigned long int num, int is_negative)
 {
 	if (is_negative)
@@ -59,6 +65,13 @@ void print_number(unsigned long int num, int is_negative)
 	printf("%lu\n", num);
 }
 
+/**
+ * calculate_number - calculates the unsigned long
+ * integer value of a Python integer object
+ * @p: a PyLongObject pointer to the Python integer object
+ * @size: the size of the Python integer object
+ * Return: the calculated unsigned long integer value
+ */
 unsigned long int calculate_number(PyLongObject *p, int size)
 {
 	unsigned long int num = 0;
