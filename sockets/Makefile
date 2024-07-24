@@ -43,4 +43,3 @@ todo_api_7: todo_api_7_files simple_server.o
 
 todo_api_7_files:
 	$(CC) $(CFLAGS) -DTODO_API_5 -DTODO_API_7 -c 8-make_response.c
-	

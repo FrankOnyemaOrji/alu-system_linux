@@ -6,16 +6,14 @@
 #include <stdio.h>
 
 /**
-* main - Opens a socket and listens on a port 12345
+* main - Opens a socket and listens on port 12345
 *
 * Return: 0 on success, 1 on failure if binding fails
 */
 int main(void)
 {
 	int server_fd = socket(AF_INET, SOCK_STREAM, 0);
-
 	int enable = 1;
-
 	struct sockaddr_in addr;
 
 	if (server_fd == -1)
@@ -24,7 +22,7 @@ int main(void)
 		return (1);
 	}
 
-	/*See man setsockopt*/
+	/* See man setsockopt */
 	if (setsockopt(server_fd, SOL_SOCKET,
 	SO_REUSEADDR | SO_REUSEPORT, &enable, sizeof(int)) < 0)
 		perror("SO_REUSEADDR | SO_REUSEPORT failed");

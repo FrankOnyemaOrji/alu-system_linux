@@ -5,8 +5,8 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include "http_request_parser.c"
+#include "http_request_utils.c"
 #include "todos.c"
-
 
 #ifdef TODO_API_5
 #define GET_URIS     {"/todos"}
@@ -27,7 +27,6 @@
 #define CONNECT_URIS {NULL}
 #define OPTIONS_URIS {NULL}
 #define TRACE_URIS   {NULL}
-
 
 /**
  * known_uri - returns true if the request is making a valid request
@@ -50,14 +49,12 @@ int known_uri(http_request_t *request)
 	char **uris = uris_by_method[request->method];
 	size_t i;
 
-
 	for (i = 0; uris[i]; i++)
 		if (!strcmp(request->uri, uris[i]))
 			return (true);
 
 	return (false);
 }
-
 
 /**
  * process_get_request - processes a get request
@@ -105,9 +102,10 @@ int sum_repr_lens, int id)
  * @request: pointer to struct that describes request
  * @todos: pointer to link list of todo items
  * @id: max id value allowed
+ * @sum_repr_lens: length of the sum of all representations
  * Return: "\r\n" on success and NULL on failure
  */
-char *process_delete_request(http_request_t *request, 
+char *process_delete_request(http_request_t *request,
 todo_t *todos, int id, int *sum_repr_lens)
 {
 	char *tmp = get_param(request->query_params, "id");
@@ -115,14 +113,14 @@ todo_t *todos, int id, int *sum_repr_lens)
 
 	if (!tmp)
 		return (NULL);
-	
+
 	i = atoi(tmp);
 
 	if (i >= id || !todos[i].repr)
 		return (NULL);
-	
+
 	*sum_repr_lens -= todos[i].repr_len;
-	
+
 	memset(&todos[i], 0, sizeof(todo_t));
 	return (strdup("\r\n"));
 }
@@ -165,10 +163,10 @@ char *process_request(http_request_t *request)
 	}
 
 #define RES_STR \
-"Content-Length: %lu\r\n\
-Content-Type: application/json\r\n\
-\r\n\
-%s" /* body goes here */
+"Content-Length: %lu\r\n" \
+"Content-Type: application/json\r\n" \
+"\r\n" \
+"%s" /* body goes here */
 	if (!body)
 		return (NULL);
 	response = calloc(length + sizeof(RES_STR) + 10, sizeof(char));
@@ -190,29 +188,30 @@ char *make_response(char *client_address, char *buffer)
 
 	(void)client_address;
 
-	if (!(request = http_request_init(buffer)))
+	request = http_request_init(buffer);
+	if (!request)
 		status = "400 Bad Request";
 	else if (!known_uri(request))
 		status = "404 Not Found";
-	else if (
-		request->method == POST &&
-		!get_header(request->headers, "Content-Length")
-	)
+	else if (request->method == POST &&
+		!get_header(request->headers, "Content-Length"))
 		status = "411 Length Required";
-	else if (!(response = process_request(request)))
-		if (request->method == POST)
-			status = "422 Unprocessable Entity";
-		else
-			status = "404 Not Found";
-	else if (request->method == POST)
-		status = "201 Created";
-	else if (request->method == DELETE)
-		status = "204 No Content";
 	else
-		status = "200 OK";
+	{
+		response = process_request(request);
+		if (!response)
+			status = (request->method == POST) ?
+				"422 Unprocessable Entity" : "404 Not Found";
+		else if (request->method == POST)
+			status = "201 Created";
+		else if (request->method == DELETE)
+			status = "204 No Content";
+		else
+			status = "200 OK";
+	}
 
-	method   = request  ? request->method_str : strtok(buffer, " ");
-	uri      = request  ? request->uri    : strtok(NULL, "? ");
+	method = request ? request->method_str : strtok(buffer, " ");
+	uri = request ? request->uri : strtok(NULL, "? ");
 	printf("%s %s -> %s\n", method, uri, status);
 	res = calloc(1024, sizeof(char));
 	sprintf(res, "HTTP/1.1 %s\r\n%s", status, response ? response : "\r\n");
