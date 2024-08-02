@@ -26,3 +26,4 @@ int find_symbol_table(Elf32_Shdr *section_headers, int shnum);
 void cleanup(FILE *file, void *section_headers, void *symbol_table,
              void *string_table);
 #endif /* HNM_H */
+

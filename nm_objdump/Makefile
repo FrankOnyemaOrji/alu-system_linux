@@ -12,10 +12,7 @@ TARGET_0 = hnm
 TARGET_1 = hobjdump
 
 # Source files for the hnm program
-SOURCE_0 = hnm-64.c hnm-32.c hnm-main.c
-
-# Header files for the hnm program
-HEADERS_0 = hnm.h
+SOURCE_0 = hnm-64.c hnm-32.c hnm-main.c hnm.h
 
 # Source files for the hobjdump program
 SOURCE_1 = hobjdump.c
@@ -28,7 +25,7 @@ debug: CFLAGS += $(DEBUGFLAGS)
 debug: all
 
 # Rule to build the hnm program
-$(TARGET_0): $(SOURCE_0) $(HEADERS_0)
+$(TARGET_0): $(SOURCE_0)
 	$(CC) $(CFLAGS) -o $(TARGET_0) $(SOURCE_0)
 
 # Rule to build the hobjdump program

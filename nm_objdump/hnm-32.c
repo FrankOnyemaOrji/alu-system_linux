@@ -82,3 +82,4 @@ int validate_elf_file(Elf32_Ehdr *elf_header, char *file_path);
 int find_symbol_table(Elf32_Shdr *section_headers, int shnum);
 void cleanup(FILE *file, void *section_headers, void *symbol_table,
 	     void *string_table);
+
