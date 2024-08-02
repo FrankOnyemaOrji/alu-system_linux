@@ -77,3 +77,4 @@ void process_elf_file32(char *file_path)
 	free(symbol_table);
 	free(string_table);
 }
+
