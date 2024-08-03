@@ -2,9 +2,6 @@
 
 /**
  * print_symbol_table32 - program that prints the symbol table for a 32-bit ELF file
- * this function iterates over the symbols in the given symbol table and prints
- * details about each symbol, such as its name, type, and associated section;
- * it decodes the symbol information and prints the symbol's value and type,
  * considering special section indices and visibility attributes
  * @section_header: a pointer to the section header of the symbol table
  * @symbol_table: a pointer to the beginning of the symbol table
@@ -12,6 +9,7 @@
  *                which contains the names of the symbols
  * @section_headers: a pointer to the array of section headers for the ELF file
  * Return: nothing (void)
+ * Author: Frank Onyema Orji
  */
 
 void print_symbol_table32(Elf32_Shdr *section_header, Elf32_Sym *symbol_table,

@@ -10,6 +10,7 @@
  *                which contains the names of the symbols
  * @section_headers: a pointer to the array of section headers for the ELF file
  * Return: nothing (void)
+ * Author: Frank Onyema Orji
  */
 
 void print_symbol_table64(Elf64_Shdr *section_header, Elf64_Sym *symbol_table,
